@@ -21,7 +21,7 @@ def main():
         # 1. Recupera as informações do Git
         print(f"1/3 -> Conectando ao repositório GitHub ({os.getenv('GITHUB_USER')}/{os.getenv('GITHUB_REPO')})...")
         git = GitHubProvider()
-        sha, message = git.get_latest_commit()
+        sha, message, author, date = git.get_latest_commit()
         
         print(f"Commit encontrado: {sha[:7]} - {message}")
         
@@ -38,20 +38,29 @@ def main():
         report = processor.process_and_report(message, diff)
         
         # Salva o relatório num arquivo .md dentro da pasta reports
-        save_report(sha, report)
+        save_report(sha, report, author, date)
 
     except Exception as e:
         print(f"Ocorreu um erro na execução: {e}")
 
-def save_report(sha: str, report: str):
+def save_report(sha: str, report: str, author: str, date_str: str):
     if not os.path.exists("reports"):
         os.makedirs("reports")
+        
+    try:
+        dt_obj = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
+        formatted_date = dt_obj.strftime("%d/%m/%Y às %H:%M:%S (UTC)")
+    except ValueError:
+        formatted_date = date_str
         
     data_atual = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     file_name = f"reports/commit_{sha[:7]}_{data_atual}.md"
     
     with open(file_name, "w", encoding="utf-8") as file:
         file.write(f"# Relatório de Análise Automática - {sha[:7]}\n\n")
+        file.write(f"**Autor do Commit:** {author}\n")
+        file.write(f"**Data do Commit:** {formatted_date}\n\n")
+        file.write("---\n\n")
         file.write(report)
         
     print(f"\n[SUCESSO] Relatório gerado com sucesso!\nCaminho: {file_name}")

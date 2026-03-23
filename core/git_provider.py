@@ -23,12 +23,12 @@ class GitHubProvider:
             "X-GitHub-Api-Version": "2022-11-28"
         }
 
-    def get_latest_commit(self) -> Tuple[str, str]:
+    def get_latest_commit(self) -> Tuple[str, str, str, str]:
         """
-        Obtém o SHA e a mensagem do último commit no repositório.
+        Obtém o SHA, a mensagem, o autor e a data do último commit no repositório.
         
         Returns:
-            Tuple[str, str]: Uma tupla contendo o SHA do commit e a mensagem.
+            Tuple[str, str, str, str]: Uma tupla contendo SHA, mensagem, autor e data.
         """
         url = f"{self.base_url}/commits"
         response = requests.get(url, headers=self.headers, params={"per_page": 1})
@@ -41,7 +41,9 @@ class GitHubProvider:
         latest_commit = data[0]
         sha = latest_commit["sha"]
         message = latest_commit["commit"]["message"]
-        return sha, message
+        author = latest_commit["commit"]["author"]["name"]
+        date = latest_commit["commit"]["author"]["date"]
+        return sha, message, author, date
 
     def get_commit_diff(self, sha: str) -> str:
         """
