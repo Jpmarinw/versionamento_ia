@@ -7,11 +7,14 @@ class CommitProcessor:
     def __init__(self, ai_engine):
         self.ai = ai_engine
 
-    def clean_diff(self, raw_diff: str, max_length: int = 2000) -> str:
+    def clean_diff(self, raw_diff: str) -> str:
         """
         Limita o tamanho do diff para não extrapolar a janela de contexto da LLM local.
-        Pega os primeiros `max_length` caracteres.
+        Coleta o limite configurado pela variável de ambiente MAX_DIFF_LENGTH (padrão 2000).
         """
+        import os
+        max_length = int(os.getenv("MAX_DIFF_LENGTH", 2000))
+        
         if len(raw_diff) > max_length:
             return raw_diff[:max_length] + "\n\n... [DIFF TRUNCADO DEVIDO AO TAMANHO]"
         return raw_diff
