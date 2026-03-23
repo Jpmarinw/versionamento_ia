@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  reporter:
+    build: .
+    container_name: ai_commit_reporter
+    env_file:
+      - .env
+    volumes:
+      - ./reports:/app/reports
+    # Opcional: dependência de inicialização para não iniciar antes do Ollama rodar,
+    # se você for usar o container "ollama" deste compose.
+    # depends_on:
+    #   - ollama
+    networks:
+      - ai_net
+
+  # Descomente o serviço abaixo se deseja rodar o Ollama via Docker Compose.
+  # Para suporte a GPU da AMD nativa (ROCm), você precisa do Docker e drivers host devidamente configurados.
+  #
+  # ollama:
+  #   image: ollama/ollama:rocm
+  #   container_name: ollama_rocm
+  #   devices:
+  #     - /dev/kfd:/dev/kfd
+  #     - /dev/dri:/dev/dri
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - ai_net
+
+# volumes:
+#   ollama_data:
+
+networks:
+  ai_net:
+    driver: bridge
