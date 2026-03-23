@@ -48,8 +48,11 @@ def save_report(sha: str, report: str, author: str, date_str: str):
         os.makedirs("reports")
         
     try:
-        dt_obj = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
-        formatted_date = dt_obj.strftime("%d/%m/%Y às %H:%M:%S (UTC)")
+        dt_utc = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
+        tz_offset = int(os.getenv("TIMEZONE_OFFSET", "-4")) # Fuso de Manaus por padrão
+        dt_local = dt_utc + datetime.timedelta(hours=tz_offset)
+        # Formata o fuso para ficar explícito na string (ex: UTC-4)
+        formatted_date = dt_local.strftime(f"%d/%m/%Y às %H:%M:%S (UTC{tz_offset:+d})")
     except ValueError:
         formatted_date = date_str
         
